@@ -13,3 +13,9 @@ Refer to SimpleRotary's [README](https://github.com/mprograms/SimpleRotary/blob/
   - `positionMin` and `positionMax` are public integers that set the upper and lower limit of the encoder position when `limited` is set to `true` (default values `0` and `100`) 
   - `steps` is how many positions will increase/decrease for each encoder click, if `limited` is set to `true` this should be a multiple of `positionDefault`, `positionMin` and `positionMax` as to not go over or under the limits (default value `1`) 
 - The position system can be deactivated and reactivated using `jarel.disable()` and `jarel.enable`, these methods will change the `jarel.enabled` boolean parameter
+
+#### Todo:
+- Add wrap-around option when the limits are turned on
+- Fix lastPosition not updating when manually setting position
+- Add reverse direction option
+- Add reset position method (set to max and min method too maybe?)
