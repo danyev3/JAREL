@@ -1,8 +1,8 @@
 /*
 ===============================================================================================================
-SimpleRotary.h
+jarel.h
 Library for using rotary encoders with an Arduino
-Learn more at [https://github.com/mprograms/SimpleRotary]
+Learn more at [https://github.com/mprograms/jarel]
 
 Supports:
 
@@ -28,9 +28,9 @@ Release under the GNU General Public License v3
 */
 
 #include "Arduino.h"
-#include "SimpleRotary.h"
+#include "jarel.h"
 
-SimpleRotary::SimpleRotary(byte pinA, byte pinB, byte pinS)
+jarel::jarel(byte pinA, byte pinB, byte pinS)
 {
   _pinA = pinA;
   _pinB = pinB;
@@ -54,7 +54,7 @@ SimpleRotary::SimpleRotary(byte pinA, byte pinB, byte pinS)
 	
 	@since v0.1;
 **/
-void SimpleRotary::setTrigger(byte i)
+void jarel::setTrigger(byte i)
 {
   _trigger = i;
   _setInputPins();
@@ -73,7 +73,7 @@ void SimpleRotary::setTrigger(byte i)
 	
 	@since v0.1;
 **/
-void SimpleRotary::setDebounceDelay(int i)
+void jarel::setDebounceDelay(int i)
 {
   _debounceRDelay = i;
 }
@@ -89,7 +89,7 @@ void SimpleRotary::setDebounceDelay(int i)
 	
 	@since v0.1;
 **/
-void SimpleRotary::setErrorDelay(int i)
+void jarel::setErrorDelay(int i)
 {
   _errorDelay = i;
 }
@@ -105,7 +105,7 @@ void SimpleRotary::setErrorDelay(int i)
 	
 	@since v0.1;
 **/
-byte SimpleRotary::rotate()
+byte jarel::rotate()
 {
   byte _dir = 0x00;
   _updateTime();
@@ -153,7 +153,7 @@ byte SimpleRotary::rotate()
 	@since v0.1;
 	@return byte, value of turned knob.
 **/
-byte SimpleRotary::push(){
+byte jarel::push(){
 	_updateTime();
 	byte val = 0x00;
 
@@ -180,7 +180,7 @@ byte SimpleRotary::push(){
 	
 	@return int, time in MS that the button has been held down.
 **/
-int SimpleRotary::pushTime(){
+int jarel::pushTime(){
 	unsigned int t = 0;
 	byte s = push();
 	if ( !_statusS &&  !_statusS_prev ) {
@@ -206,7 +206,7 @@ int SimpleRotary::pushTime(){
 	
 	@since v0.1;
 **/
-void SimpleRotary::resetPush(){
+void jarel::resetPush(){
 	_updateTime();
 	_pushTime = _currentTime;
 }
@@ -231,7 +231,7 @@ void SimpleRotary::resetPush(){
 	
 	@return byte
 **/
-byte SimpleRotary::pushLong(int i) {
+byte jarel::pushLong(int i) {
 	unsigned int time = pushTime();
 	byte val = 0x00;
 	
@@ -261,7 +261,7 @@ byte SimpleRotary::pushLong(int i) {
 	
 	@return byte
 **/
-byte SimpleRotary::pushType(int i){
+byte jarel::pushType(int i){
 	_updateTime();
 	_statusS = ( digitalRead(_pinS) == _trigger ) ? true : false;
 	byte val = 0x00;
@@ -307,7 +307,7 @@ byte SimpleRotary::pushType(int i){
 	
 	@since v0.2;
 **/
-void SimpleRotary::_setInputPins(){
+void jarel::_setInputPins(){
 	if ( _trigger == HIGH ) {
 		pinMode(_pinA, INPUT_PULLUP);
 		pinMode(_pinB, INPUT_PULLUP);
@@ -326,7 +326,7 @@ void SimpleRotary::_setInputPins(){
 	
 	@since v0.1;
 **/
-void SimpleRotary::_updateTime()
+void jarel::_updateTime()
 {
   _currentTime = millis();
 }
