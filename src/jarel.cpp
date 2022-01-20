@@ -7,8 +7,8 @@ Learn more at [https://github.com/danyev3/JAREL]
 ===============================================================================================================
 */
 
-#include "Arduino.h"
 #include "jarel.h"
+#include "Arduino.h"
 
 jarel::jarel(byte pinA_, byte pinB_, byte pinS_, int positionDefault_, bool limited_, int positionMin_, int positionMax_, int steps_) {
 	_pinA = pinA_;
@@ -34,7 +34,7 @@ jarel::jarel(byte pinA_, byte pinB_, byte pinS_, int positionDefault_, bool limi
 	If set to HIGH then the library will automaticall enable pull up resisters for the rotaty
 	encoder's pins.
 
-	@since v0.1;
+	@since SimpleRotary v0.1;
 **/
 void jarel::setTrigger(byte i) {
 	_trigger = i;
@@ -51,11 +51,9 @@ void jarel::setTrigger(byte i) {
 
 	You can turn this feature off by setting the delay value to 0.
 
-	@since v0.1;
+	@since SimpleRotary v0.1;
 **/
-void jarel::setDebounceDelay(int i) {
-	_debounceRDelay = i;
-}
+void jarel::setDebounceDelay(int i) { _debounceRDelay = i; }
 
 /**
 	SET ERROR CORRECTION DELAY
@@ -65,52 +63,111 @@ void jarel::setDebounceDelay(int i) {
 
 	You can turn this feature off by setting the delay value to 0.
 
-	@since v0.1;
+	@since SimpleRotary v0.1;
 **/
-void jarel::setErrorDelay(int i) {
-	_errorDelay = i;
-}
+void jarel::setErrorDelay(int i) { _errorDelay = i; }
 
 /**
 	UPDATE POSITION
 	Updates the position of the rotary encoder and returns it's value.
 
-	@since JAREL;
+	@since JAREL v1.0;
 	@return int, value of position.
 **/
 int jarel::updatePosition() {
 	byte _dir = rotate();
 	if (enabled) {
-		switch (_dir) {
-		case 0x00:
-			lastPosition = position;
-			break;
-		case 0x01:
-			if (!_limited) {
-				position = position - _steps;
-			} else if (position > positionMin) {
-				position = position - _steps;
+		if (!_limited) {
+			switch (_dir) {
+			case 0x00:
+				lastPosition = position;
+				break;
+			case 0x01:
+				decreasePosition(_steps);
+				break;
+			case 0x02:
+				increasePosition(_steps);
+				break;
 			}
-			break;
-		case 0x02:
-			if (!_limited) {
-				position = position + _steps;
-			} else if (position < positionMax) {
-				position = position + _steps;
+		} else {
+			switch (_dir) {
+			case 0x00:
+				lastPosition = position;
+				break;
+			case 0x01:
+				if (position > positionMin) {
+					if ((position - _steps) >= positionMin) {
+						decreasePosition(_steps);
+					} else {
+						setPosition(positionMin);
+					}
+				}
+				break;
+			case 0x02:
+				if (position < positionMax) {
+					if ((position + _steps) <= positionMax) {
+						increasePosition(_steps);
+					} else {
+						setPosition(positionMax);
+					}
+				}
+				break;
 			}
-			break;
 		}
 	}
 }
 
 /**
+	SET POSITION
+	Sets the position of the rotary encoder and updates last position.
+
+	@since JAREL v1.0;
+**/
+bool jarel::setPosition(int i) {
+	lastPosition = position;
+	if (_limited) {
+		if (i > positionMax) {
+			position = positionMax;
+			return false;
+		} else if (i < positionMin) {
+			position = positionMin;
+			return false;
+		} else {
+			position = i;
+		}
+	} else {
+		position = i;
+	}
+	return true;
+}
+
+/**
+	RESET POSITION
+	Sets the position of the rotary encoder and updates last position.
+
+	@since JAREL v1.0;
+**/
+void jarel::resetPosition() { setPosition(positionDefault); }
+
+/**
+	INCREASE/DECREASE POSITION
+	Increases or decreases the position of the rotary encoder by the int passed.
+
+	@since JAREL v1.0;
+	@param i, int, the value you wish to increase or decrease.
+	@return bool, true if the end value was inside the range.
+**/
+bool jarel::increasePosition(int i) { return setPosition(position + i); }
+bool jarel::decreasePosition(int i) { return setPosition(position - i); }
+
+/**
 	ENABLE / DISABLE
 	Methods to quickly enable and disable the encoder position changing.
 
-	@since JAREL;
+	@since JAREL v1.0;
 **/
-void jarel::enable() {enabled = true;}
-void jarel::disable() {enabled = false;}
+void jarel::enable() { enabled = true; }
+void jarel::disable() { enabled = false; }
 
 /**
 	GET ROTARY DIRECTION
@@ -120,7 +177,7 @@ void jarel::disable() {enabled = false;}
 	0x01 = Clockwise;
 	0x02 = Counter-Clockwise
 
-	@since v0.1;
+	@since SimpleRotary v0.1;
 	@return byte, value of direction.
 **/
 byte jarel::rotate() {
@@ -163,7 +220,7 @@ byte jarel::rotate() {
 	0x00 = Not pushed.
 	0x01 = Pushed;
 
-	@since v0.1;
+	@since SimpleRotary v0.1;
 	@return byte, value of pushed button.
 **/
 byte jarel::push() {
@@ -188,8 +245,7 @@ byte jarel::push() {
 	GET LONG BUTTON PUSH TIME
 	Gets the amount of time in milliseconds that the button is held down.
 
-	@since v0.1;
-
+	@since SimpleRotary v0.1;
 	@return int, time in MS that the button has been held down.
 **/
 int jarel::pushTime() {
@@ -215,7 +271,7 @@ int jarel::pushTime() {
 		}
 	}
 
-	@since v0.1;
+	@since SimpleRotary v0.1;
 **/
 void jarel::resetPush() {
 	_updateTime();
@@ -234,11 +290,8 @@ void jarel::resetPush() {
 	0x00 = Button not pressed long enough
 	0x01 = Button was pressed long enough.
 
-	@param i, int, the number of milliseconds the button needs to be pressed in order
-				   to be considered a long press.
-
-	@since v0.1;
-
+	@since SimpleRotary v0.1;
+	@param i, int, the number of milliseconds the button needs to be pressed in order to be considered a long press.
 	@return byte
 **/
 byte jarel::pushLong(int i) {
@@ -263,11 +316,8 @@ byte jarel::pushLong(int i) {
 	0x01 = Button was pressed.
 	0x00 = Button was pressed for n milliseconds.
 
-	@param i, int, the number of milliseconds the button needs to be pressed in order
-				   to be considered a long press.
-
-	@since v1.1.0;
-
+	@since SimpleRotary v1.1.0;
+	@param i, int, the number of milliseconds the button needs to be pressed in order to be considered a long press.
 	@return byte
 **/
 byte jarel::pushType(int i) {
@@ -307,13 +357,11 @@ byte jarel::pushType(int i) {
 	SET INPUT PINS
 	Sets the input pins and pinmode based on the defined pins and _trigger value.
 
+	@since SimpleRotary v0.2;
 	@see setTrigger();
-
-	@since v0.2;
 **/
 void jarel::_setInputPins() {
-	if (_trigger == HIGH)
-	{
+	if (_trigger == HIGH) {
 		pinMode(_pinA, INPUT_PULLUP);
 		pinMode(_pinB, INPUT_PULLUP);
 		pinMode(_pinS, INPUT_PULLUP);
@@ -328,8 +376,6 @@ void jarel::_setInputPins() {
 	UPDATE THE TIME
 	Updates the _currentTime value to the current time in milliseconds.
 
-	@since v0.1;
+	@since SimpleRotary v0.1;
 **/
-void jarel::_updateTime() {
-	_currentTime = millis();
-}
+void jarel::_updateTime() { _currentTime = millis(); }

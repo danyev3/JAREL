@@ -4,7 +4,7 @@
 #include "Arduino.h"
 
 class jarel {
-public:
+  public:
 	jarel(byte pinA_, byte pinB_, byte pinS_, int positionDefault_ = 0, bool limited_ = false, int positionMin_ = 0, int positionMax_ = 100, int steps_ = 1);
 	int position;
 	int lastPosition;
@@ -13,6 +13,10 @@ public:
 	int positionMax;
 	bool enabled = true;
 	int updatePosition();
+	bool setPosition(int i);
+	void resetPosition();
+	bool increasePosition(int i = 1);
+	bool decreasePosition(int i = 1);
 	void enable();
 	void disable();
 	byte rotate();
@@ -25,7 +29,7 @@ public:
 	void setErrorDelay(int i);
 	void resetPush();
 
-private:
+  private:
 	byte _trigger = HIGH;
 	byte _pinA;
 	byte _pinB;
